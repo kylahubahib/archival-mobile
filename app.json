@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "archival-alchemist-mobile",
+    "slug": "archival-alchemist-mobile",
+    "scheme": "archival-alchemist-mobile",
+    "version": "1.0.0",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ]
+    ]
+  }
+}

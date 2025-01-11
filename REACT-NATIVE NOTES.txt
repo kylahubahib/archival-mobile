@@ -1,0 +1,26 @@
+HOW TO USE LARAVEL API TO REACT-NATIVE?
+
+# When running the laravel server ensure to use this command:
+php artisan serve --host=0.0.0.0 --port=8000
+
+# Next, go to utils/axios.js and configure the url that will be used. Use your local ip address and ensure 
+# that you're in the same network of the mobile device you're configuring (ipconfig to check the ipv4)
+
+# Also check for the http:// and https:// . Remember that you can't use the api if they're different. 
+# Example: When you start the expo project the url is https but since laravel has an http in the url, the api won't work
+
+# If you want to wirelessly connect your project in expo go use this command:
+npx expo start --tunnel
+
+# If you want to clear cache of the expo project use this:
+npx expo start --clear
+# Since sometimes, some parts in your code might not be rendered if you didnt clear the cache
+
+# If you wanna check and install some dependencies that expo requires, use this command:
+npx expo-doctor
+# Using this will help you identify what's wrong with your project
+
+REMINDER:
+# You cant use secure store in the web version so the code might have an error.
+
+After cloning or forking the project, run the command npm install

@@ -53,6 +53,13 @@ export default function RootLayout() {
                 backgroundColor: "#294996"
             }
         }}/>
+        <Stack.Screen name="forum/report_post/[postId]" options={{
+            headerTitle: "Report User",
+            headerTintColor: "white",
+            headerStyle: {
+                backgroundColor: "#294996"
+            }
+        }}/>
          <Stack.Screen name="class/task/[taskId]/[sectionId]" options={{
             headerTitle: "Task Instruction",
             headerTintColor: "white",

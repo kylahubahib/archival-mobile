@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, FlatList, Linking } from "react-native";
+import { View, Text, StyleSheet, ScrollView, FlatList, Linking, Alert } from "react-native";
 import { Card, Button, ActivityIndicator } from "react-native-paper";
 import { getToken } from "../services/TokenService";
 import axios from "../../utils/axios";
@@ -26,7 +26,7 @@ export default function Track(sectionId, taskId) {
         headers: { Authorization: `Bearer ${token}` }
       });
   
-      console.log("These are the manuscripts:", response.data); // Log the response to check its structure
+      console.log("These are the manuscripts:", response.data); 
       setManuscripts(response.data); // Store the manuscripts data
       setLoading(false);
   
@@ -35,6 +35,25 @@ export default function Track(sectionId, taskId) {
       // Optional: Display an alert to notify the user of the error
       Alert.alert("Error", "Failed to fetch manuscripts. Please try again.");
     }
+  };
+
+  const handleSendForReview = async (item) => {
+    setLoading(true);
+
+    try {
+      const token = await getToken();
+      const response = await  axios.post('/send-for-revision', { manuscript_id: item.id },
+        {
+          headers: {
+              Authorization: `Bearer ${token}`
+            },
+        })
+      Alert.alert('success', response.data.success);
+    } catch (error) {
+      console.log(error);
+    }
+   
+      
   };
   
   const getGroupMembers = async () => {
@@ -95,6 +114,13 @@ export default function Track(sectionId, taskId) {
           onPress={() => openLink(item.man_doc_content)}
         >
           View Work
+        </Button>}
+        {item.man_doc_status != 'Approved' || item.man_doc_status != 'To-Review' && <Button
+          mode="contained"
+          style={styles.viewButton}
+          onPress={() => handleSendForReview(item)}
+        >
+          Send for Revision
         </Button>}
       </Card.Actions>
     </Card>

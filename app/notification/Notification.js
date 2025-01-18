@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, FlatList, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { ActivityIndicator, Divider, Card } from 'react-native-paper';
 import { getToken } from '../services/TokenService';
 import axios from '../../utils/axios';
@@ -23,6 +23,8 @@ export default function Notification({ user }) {
         },
       });
 
+      markAsRead();
+
       // Debugging log
       console.log('API Response:', response.data);
 
@@ -36,12 +38,37 @@ export default function Notification({ user }) {
   };
 
   const clearNotifications = async () => {
-    console.log('Clear Notifications');
+    try {
+      const token = await getToken();
+      const response = await axios.post('/clear-notifications', {}, 
+        {
+          headers: { Authorization: `Bearer ${token}` }, 
+        }
+      );
+      Alert.alert('Success', response.data.message); 
+      setNotificationData([]); 
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
+      Alert.alert('Error', 'Failed to clear notifications. Please try again.');
+    }
   };
+  
 
   const markAsRead = async () => {
-    console.log('Read');
+    try {
+      const token = await getToken();
+      const response = await axios.post('/mark-as-read', {}, 
+        {
+          headers: { Authorization: `Bearer ${token}` }, 
+        }
+      );
+  
+      console.log(response.data.message);
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
   };
+  
 
   const renderNotification = ({ item }) => (
     <Card style={[styles.notificationCard, !item.read_at && styles.unreadNotification]}>
@@ -61,9 +88,7 @@ export default function Notification({ user }) {
 
         <View>
           <View style={styles.header}>
-            <TouchableOpacity onPress={clearNotifications}>
-              <Text style={styles.headerText}>Mark All as Read</Text>
-            </TouchableOpacity>
+            <View></View>
             <TouchableOpacity onPress={clearNotifications}>
               <Text style={styles.clearText}>Clear All</Text>
             </TouchableOpacity>

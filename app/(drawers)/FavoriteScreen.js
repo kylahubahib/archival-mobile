@@ -32,7 +32,7 @@ export default function FavoriteScreen() {
   useEffect(() => {
     // fetchUser();
     fetchBooks();
-  });
+  },);
 
   const fetchBooks = async () => {
     // setLoading(true);
@@ -148,10 +148,10 @@ export default function FavoriteScreen() {
         />
         
         {/* Filter Icon */}
-        <IconButton
+        {/* <IconButton
           icon={() => <FontAwesome name="filter" size={24} color="#294996" />}
           onPress={toggleFilterModal}
-        />
+        /> */}
 
         {/* Filter Modal */}
         <Modal

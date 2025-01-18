@@ -15,13 +15,6 @@ export default function LoginScreen() {
   const handleLogin = async () => {
     
     setError({});
-    //router.push("/LibraryScreen");
-
-    // if(email === '' || password === '') {
-    //   setError('All fields are required');
-    //   return;
-    // }
-    
     try {
 
       console.log('loging in...');
@@ -30,6 +23,10 @@ export default function LoginScreen() {
         email: email,
         password: password
       });
+
+      // if(e.response.data.message) {
+      //   setError(e.response.data.message);
+      // }
       
       const user = await loadUser();
 

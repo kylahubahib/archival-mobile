@@ -5,24 +5,42 @@ import { Image, SafeAreaView, Text, View, ScrollView, TouchableOpacity } from "r
 import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { Avatar, IconButton, Provider as PaperProvider, TouchableRipple } from "react-native-paper";
 import { router } from "expo-router";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import AuthContext from "../context/AuthContext";
 import { url } from "../../utils/utils";
+import { loadUser } from "../services/AuthService";
+import { setToken } from "../services/TokenService";
 
 
 export default function DrawerLayout() {
-  const { user } = useContext(AuthContext);
+  const [ user, setUser ] = useState(null); 
 
-  console.log('This is the user: ', user);
+  useEffect(() => {
+    getUser();
+  },[user])
+
+  const getUser = async () => {
+    const response = await loadUser();
+    setUser(response);
+  }
+
+  // console.log('This is the user: ', user);
 
   const navigateProfile = () => {
     console.log('press');
     router.push("/profile/ProfileScreen");
   } 
 
-  const handleLogout = () => {
-    router.push("login");
-  } 
+  const handleLogout = async () => {
+    try {
+      await setToken(null);
+      setUser(null); 
+      router.replace("/login"); 
+    } catch (error) {
+      console.error("Error during logout:", error);
+      Alert.alert("Logout Failed", "An error occurred while logging out. Please try again.");
+    }
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -76,7 +94,7 @@ export default function DrawerLayout() {
                       }}
                       source={{
                         uri: user?.user_pic
-                          ? `${url.BASE_URL}/${user.user_pic}`
+                          ? `${url.BASE_URL}/${user?.user_pic}`
                           : 'https://ui-avatars.com/api/?name=Anonymous&background=random',
                       }}
                     />
@@ -88,7 +106,7 @@ export default function DrawerLayout() {
                         marginVertical: 7,
                       }}
                     >
-                      {user.name || 'User'}
+                      {user?.name || 'User'}
                     </Text>
                     <Text
                       style={{
@@ -96,7 +114,7 @@ export default function DrawerLayout() {
                         color: "#606060",
                       }}
                     >
-                      {user.email || 'email@gmail.com'}
+                      {user?.email || 'email@gmail.com'}
                     </Text>
                   </View>
                 </TouchableRipple> 

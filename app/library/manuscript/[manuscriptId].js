@@ -211,24 +211,28 @@ export default function ManuscriptDetails() {
               color="#294996"
               size={24}
               onPress={() => handleDownload(manuscript.man_doc_content, manuscript.man_doc_title)}
+              disabled={!!!user?.is_affiliated}
             />
             <IconButton
               icon={isBookmarked ? 'bookmark' : 'bookmark-outline'}
               color={isBookmarked ? '#FFD700' : '#294996'}
               size={24}
               onPress={handleToggleFavorite}
+              disabled={!!!user?.is_affiliated}
             />
             <IconButton
               icon="star"
               color="#294996"
               size={24}
               onPress={showModal}
+              disabled={!!!user?.is_affiliated}
             />
             <IconButton
               icon="format-quote-close"
               color="#294996"
               size={24}
               onPress={handleCopyCitation}
+              disabled={!!!user?.is_affiliated}
             />
             <IconButton
               icon="eye"

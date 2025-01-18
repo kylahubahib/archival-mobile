@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, StyleSheet, View, Text } from "react-native";
+import { SafeAreaView, StyleSheet, View, Text, Linking } from "react-native";
 import { Button, Modal, Portal, Paragraph, Card, ActivityIndicator } from "react-native-paper";
 import { getToken } from "../services/TokenService";
 import axios from "../../utils/axios";
+import { loadUser } from "../services/AuthService";
+import { url } from "../../utils/utils";
 
 export default function SubscriptionInformation(user) {
   const [transactionHistory, setTransactionHistory] = useState(null);
@@ -11,12 +13,14 @@ export default function SubscriptionInformation(user) {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState(null);
-  const [isAffiliated, setIsAffiliated] = useState(!user.isAffiliated);
+  const [isAffiliated, setIsAffiliated] = useState(!!user.user.is_affiliated);
 
 
   useEffect(() => {
     fetchSubscription();
   }, []);
+
+  console.log(!!user.user.is_affiliated);
 
   const fetchSubscription = async () => {
     try {
@@ -114,20 +118,25 @@ export default function SubscriptionInformation(user) {
         <View>
           <Text style={styles.text}>You are currently in the free plan.</Text>
           <View style={styles.row}>
-            <Button
-              mode="outlined"
-              style={styles.upgradeButton}
-              onPress={() => console.log("Upgrade to Premium")}
-            >
-              Upgrade to Premium
-            </Button>
-            <Button
+
+          <Text style={{ color: "blue" }}>
+            Go to the Archival Alchemist site to change your plan or affiliate a university
+          </Text>
+          <Button
+            mode="outlined"
+            style={styles.upgradeButton}
+            onPress={() => Linking.openURL(`${url.BASE_URL}/home`)}
+          >
+            Archival Alchemist
+          </Button>
+            
+            {/*<Button
               mode="outlined"
               style={styles.affiliateButton}
               onPress={() => setIsAffiliated(true)}
             >
               Affiliate a university
-            </Button>
+            </Button> */}
           </View>
         </View>
       ) : (

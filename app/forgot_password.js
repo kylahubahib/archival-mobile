@@ -36,9 +36,8 @@ export default function ForgotPasswordScreen() {
       <View style={styles.container}>
         <Card style={styles.card}>
           <Card.Content>
-            <Title style={styles.title}>Forgot Password?</Title>
             <Paragraph style={styles.paragraph}>
-              No problem. Just let us know your email address, and we will email you a password reset link that will allow you to choose a new one.
+              Just let us know your email address, and we will email you a password reset link that will allow you to choose a new one.
             </Paragraph>
 
             {errors.general && <Text style={styles.errorText}>{errors.general}</Text>}
@@ -86,12 +85,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#e9f1ff',
   },
   card: {
     padding: 16,
     borderRadius: 10,
     elevation: 4,
+    backgroundColor:"white"
   },
   title: {
     fontSize: 24,
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   paragraph: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#555',
     marginBottom: 20,
     textAlign: 'center',

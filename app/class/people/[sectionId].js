@@ -1,7 +1,7 @@
 import { Link, useLocalSearchParams } from "expo-router";
 import { SafeAreaView, StyleSheet, Text, View, FlatList, ActivityIndicator } from "react-native";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "../../../utils/axios";
 import { getToken } from "../../services/TokenService";
 
 export default function People() {
@@ -14,13 +14,13 @@ export default function People() {
   useEffect(() => {
     fetchMembers();
   }, []);
+  console.log(sectionId);
 
   const fetchMembers = async () => {
     try {
       setLoading(true);
       const token = await getToken();
 
-      // Fetch group members and current user concurrently
       const [groupResponse, userResponse] = await Promise.all([
         axios.get(`/fetch-groupmembers/${sectionId}`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -44,15 +44,14 @@ export default function People() {
 
   const renderMember = ({ item }) => (
     <View style={styles.memberContainer}>
-      <Text style={styles.memberName}>{item.name}</Text>
-      <Text style={styles.memberRole}>{item.role}</Text>
+      <Text style={styles.memberName}>{item.user?.name}</Text>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#0000ff" style={{paddingTop: 50}} />
       ) : errorMessage ? (
         <Text style={styles.errorText}>{errorMessage}</Text>
       ) : (
@@ -94,7 +93,6 @@ const styles = StyleSheet.create({
   },
   memberName: {
     fontSize: 16,
-    fontWeight: "bold",
   },
   memberRole: {
     fontSize: 14,

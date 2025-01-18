@@ -44,7 +44,7 @@ export default function ForumList({ posts, user }) {
           }
         >
           {user?.name === item.user?.name && <Menu.Item onPress={() => console.log("Pressed")} title="Remove" />}
-          <Menu.Item onPress={() => console.log("Reported")} title="Report" />
+          <Menu.Item onPress={() => router.push("/forum/report_post/[postId]")} title="Report" />
         </Menu>
       </View>
       <Text style={styles.postTitle}>{item.title}</Text>

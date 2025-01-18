@@ -6,6 +6,8 @@ import FormTextField from '../../components/FormTextField';
 import GroupClass from '../class/group_class';
 import axios from '../../utils/axios';
 import { getToken } from '../services/TokenService';
+import { loadUser } from '../services/AuthService';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 export default function ClassScreen() {
   const [visible, setVisible] = useState(false);
@@ -13,13 +15,20 @@ export default function ClassScreen() {
   const [joinedClass, setJoinedClass] = useState(false); 
   const [selectedSection, setSelectedSection] = useState(null);
   const [sections, setSections] = useState([]);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    getUser();
     fetchStudentClasses(); 
-  },[]);
+  },[user]);
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
+
+  const getUser = async () => {
+    const response = await loadUser();
+    setUser(response);
+  }
 
   const fetchStudentClasses = async () => {
     try {
@@ -127,6 +136,35 @@ export default function ClassScreen() {
       <GroupClass section={selectedSection} />
     </SafeAreaView>
   }
+
+  if (user?.user_type === 'general_user') {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#e9f1ff", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <FontAwesome5 name="chalkboard-teacher" size={50} color="#294996" />
+        </View>
+        <Text style={{ 
+            fontSize: 18, 
+            fontWeight: "bold", 
+            color: "#294996", 
+            textAlign: "center", 
+            marginBottom: 10 
+          }}>
+          Access Restricted
+        </Text>
+        <Text style={{ 
+            fontSize: 16, 
+            color: "#606060", 
+            textAlign: "center", 
+            lineHeight: 24 
+          }}>
+          You need to be a student or teacher to access the class. 
+          Please contact support if you believe this is an error.
+        </Text>
+      </SafeAreaView>
+    );
+  }
+  
 
   const renderClassItem = ({ item, onPress }) => (
     <TouchableOpacity onPress={() => onPress(item)} style={styles.classCard}>

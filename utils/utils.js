@@ -28,5 +28,5 @@ export const getInitials = (fullName) => {
   
   export const url = {
     // BASE_URL: 'http://192.168.1.4:8000',
-    BASE_URL: 'http://192.168.1.8a:8000', 
+    BASE_URL: 'http://172.16.86.46:8000', 
   };

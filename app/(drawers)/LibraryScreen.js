@@ -4,7 +4,7 @@ import { Searchbar, IconButton, Button, Card } from 'react-native-paper';
 import { FontAwesome } from '@expo/vector-icons';
 import axios from '../../utils/axios';
 import ManuscriptTags from '../../components/ManuscriptTags';
-import { WebView } from 'react-native-webview'; // Import WebView from react-native-webview
+import { WebView } from 'react-native-webview'; 
 import { getToken } from '../services/TokenService';
 import { router } from 'expo-router';
 
@@ -15,28 +15,25 @@ export default function LibraryScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // For PDF Viewer Modal
   const [pdfVisible, setPdfVisible] = useState(false);
   const [selectedPdf, setSelectedPdf] = useState('');
 
-  // Toggle the modal visibility
   const toggleFilterModal = () => {
     setFilterVisible(!filterVisible);
   };
 
-  // Fetch books from the API
   useEffect(() => {
     const fetchBooks = async () => {
       setLoading(true);
       try {
-        console.log('Start fetching books...');
-        const token = await getToken(); 
+        const token = await getToken();
         const response = await axios.get('/published-manuscripts', {
           headers: {
-              Authorization: `Bearer ${token}`
-          }
-      });
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setBooks(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error(error.response || error.message);
         setError('Error fetching books. Please try again later.');
@@ -48,6 +45,15 @@ export default function LibraryScreen() {
     fetchBooks();
   }, []);
 
+  const filteredBooks = books.filter((book) => {
+    const query = searchQuery.toLowerCase();
+    const titleMatch = book.man_doc_title?.toLowerCase().includes(query);
+    const authorMatch = book.authors?.some((author) => author.name.toLowerCase().includes(query));
+    const tagMatch = book.tags?.some((tag) => tag.tags_name.toLowerCase().includes(query));
+
+    return titleMatch || authorMatch || tagMatch;
+  });
+
   const { width } = Dimensions.get('window');
   const numColumns = 2;
   const cardWidth = width / numColumns - 20;
@@ -56,35 +62,32 @@ export default function LibraryScreen() {
     <TouchableOpacity
       onPress={() => {
         if (item.man_doc_content) {
-          // console.log(item.man_doc_content);
-          // setSelectedPdf(item.man_doc_content);
-          // setPdfVisible(true);
           router.push(`library/manuscript/${item.id}`);
         } else {
-          alert("PDF URL is not available");
+          alert('PDF URL is not available');
         }
       }}
       style={{ margin: 10 }}
     >
-      <Card style={{ width: cardWidth, backgroundColor: "white", elevation: 3 }}>
-        {/* Card Cover styled with Title, Authors, and Year */}
+      <Card style={{ width: cardWidth, backgroundColor: 'white', elevation: 3 }}>
         <View style={styles.cardCover}>
           <Text style={styles.cardTitle}>{item.man_doc_title}</Text>
-
-          {/* Bottom Container for Authors and Year */}
           <View style={styles.bottomContainer}>
             <View style={styles.authorsContainer}>
               <Text style={styles.authorsLabel}>By:</Text>
               {item.authors && item.authors.length > 0 ? (
                 item.authors.map((author, index) => (
-                  <Text key={index} style={styles.authorName}>{author.name}</Text>
+                  <Text key={index} style={styles.authorName}>
+                    {author.name}
+                  </Text>
                 ))
               ) : (
                 <Text style={styles.authorName}>Unknown Authors</Text>
               )}
             </View>
-
-            <Text style={styles.cardYear}>{new Date(item.updated_at).getFullYear()}</Text>
+            <Text style={styles.cardYear}>
+              {new Date(item.updated_at).getFullYear()}
+            </Text>
           </View>
         </View>
         <Card.Content>
@@ -112,90 +115,38 @@ export default function LibraryScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#e9f1ff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#e9f1ff'}}>
       <View style={styles.container}>
-        {/* Search Bar */}
         <Searchbar
-          placeholder="Search books..."
+          placeholder="Search books by title, author, or tags..."
           onChangeText={(text) => setSearchQuery(text)}
           value={searchQuery}
           elevation={1}
           style={styles.searchBar}
           inputStyle={styles.searchInput}
-          iconColor="#294996" 
-          placeholderTextColor="#888" 
+          iconColor="#294996"
+          placeholderTextColor="#888"
         />
-        
-        {/* Filter Icon */}
-        <IconButton
+        {/* <IconButton
           icon={() => <FontAwesome name="filter" size={24} color="#294996" />}
           onPress={toggleFilterModal}
-        />
-
-        {/* Filter Modal */}
-        <Modal
-          visible={filterVisible}
-          animationType="slide"
-          transparent={true}
-          onRequestClose={toggleFilterModal} 
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Filter Options</Text>
-              {/* Example Filter Options */}
-              <TouchableOpacity style={styles.filterOption}>
-                <Text>Option 1</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterOption}>
-                <Text>Option 2</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.filterOption}>
-                <Text>Option 3</Text>
-              </TouchableOpacity>
-              {/* Close Button */}
-              <Button mode="contained" onPress={toggleFilterModal}>
-                Apply Filters
-              </Button>
-            </View>
-          </View>
-        </Modal>
+        /> */}
       </View>
 
-      {/* Manuscript List */}
       <View style={{ flex: 1 }}>
         <FlatList
-          data={books}
+          data={filteredBooks}
           renderItem={renderItem}
-          keyExtractor={(item) => item.man_doc_id ? item.man_doc_id.toString() : item.id.toString()}
+          keyExtractor={(item) =>
+            item.man_doc_id ? item.man_doc_id.toString() : item.id.toString()
+          }
           numColumns={numColumns}
         />
       </View>
-
-      {/* PDF Viewer Modal */}
-      <Modal
-        visible={pdfVisible}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setPdfVisible(false)}
-      >
-        <View style={styles.pdfModalOverlay}>
-          <View style={styles.pdfModalContainer}>
-            {/* Use WebView to display the PDF */}
-            <WebView
-              originWhitelist={['*']}
-              source={{ uri: 'https://www.pdf995.com/samples/pdf.pdf' }}
-              style={{marginBottom:100, height:"100%", width:"100%", flex: 1 }}
-            />
-
-            <Button mode="contained" onPress={() => setPdfVisible(false)}>
-              Close PDF
-            </Button>
-          </View>
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -288,6 +239,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#e9f1ff'
   },
   errorContainer: {
     flex: 1,

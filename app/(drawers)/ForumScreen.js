@@ -16,34 +16,34 @@ export default function ForumScreen() {
   const [selectedSort, setSelectedSort] = useState('latest');
   const [user, setUser] = useState(null);
 
-  useEffect(()=> {
+  useEffect(() => {
     fetchPosts(selectedSort);
 
-    if(user) {
+    if (user) {
       getUser();
     }
-  },[])
+  }, []);
 
   // Fetch posts with sorting option
   const fetchPosts = async (sortType) => {
-    setLoading(true); 
+    setLoading(true);
     try {
-      console.log(`Fetching posts with sort type: ${sortType}`); 
+      console.log(`Fetching posts with sort type: ${sortType}`);
       const token = await getToken();
       const response = await axios.get(`/forum-posts?sort=${sortType}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       setPosts(response.data);
       setFilteredPosts(response.data);
-  
+
       // console.log("Fetched posts:", response.data);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || "An error occurred.";
+      const errorMessage =
+        error.response?.data?.message || error.message || "An error occurred.";
       console.error("Error fetching posts:", errorMessage);
-  
     } finally {
       setLoading(false);
     }
@@ -53,39 +53,55 @@ export default function ForumScreen() {
     const response = await loadUser();
     setUser(response);
     console.log(response);
-  }
+  };
 
-  
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    if (query.trim() === '') {
+      setFilteredPosts(posts);
+    } else {
+      const lowerCaseQuery = query.toLowerCase();
+      const filtered = posts.filter((post) =>
+        post.title?.toLowerCase().includes(lowerCaseQuery) ||
+        post.user?.name?.toLowerCase().includes(lowerCaseQuery) ||
+        post.tag_name?.some((tag) => tag.toLowerCase().includes(lowerCaseQuery)) ||
+        post.body?.toLowerCase().includes(lowerCaseQuery)
+      );
+      setFilteredPosts(filtered);
+    }
+  };
+
   return (
     <Provider>
-    <SafeAreaView style={styles.container}>
-      {/* Search Bar */}
-      <Searchbar
-        placeholder="Search posts..."
-        onChangeText={(text) => setSearchQuery(text)}
-        value={searchQuery}
-        elevation={1}
-        style={styles.searchBar}
-        inputStyle={styles.searchInput}
-        iconColor="#294996" 
-        placeholderTextColor="#888" 
-      />
+      <SafeAreaView style={styles.container}>
+        {/* Search Bar */}
+        <Searchbar
+          placeholder="Search posts by title, content, username"
+          onChangeText={handleSearch}
+          value={searchQuery}
+          elevation={1}
+          style={styles.searchBar}
+          inputStyle={styles.searchInput}
+          iconColor="#294996"
+          placeholderTextColor="#888"
+        />
 
-      {/* Add Post and View My Post */}
-      <View style={styles.header}>
-        <Link href="forum/create_post" style={styles.startDiscussionButton}>
-          <FontAwesome6 name="pen-to-square" size={16} color="white" />
-          <Text style={styles.buttonText}> Start a discussion</Text>
-        </Link>
+        {/* Add Post and View My Post */}
+        <View style={styles.header}>
+          <Link href="forum/create_post" style={styles.startDiscussionButton}>
+            <FontAwesome6 name="pen-to-square" size={16} color="white" />
+            <Text style={styles.buttonText}> Start a discussion</Text>
+          </Link>
 
-        <Link href="forum/my_posts" style={styles.myPostsButton}>
-          <FontAwesome6 name="file-signature" size={16} color="white" />
-          <Text style={styles.buttonText}> My Posts</Text>
-        </Link>
-      </View>
+          {/* <Link href="forum/my_posts" style={styles.myPostsButton}>
+            <FontAwesome6 name="file-signature" size={16} color="white" />
+            <Text style={styles.buttonText}> My Posts</Text>
+          </Link> */}
+        </View>
 
-      <ForumList posts={filteredPosts} user={user} />
-    </SafeAreaView>
+        <ForumList posts={filteredPosts} user={user} />
+      </SafeAreaView>
     </Provider>
   );
 }

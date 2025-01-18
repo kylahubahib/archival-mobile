@@ -47,12 +47,11 @@ export default function GroupClass({ section }) {
 
   const handleLeaveClass = () => {
     console.log('Leave Class pressed');
-    // Add the logic for leaving the class here
   };
 
   const handleViewMembers = () => {
     console.log('View Members pressed');
-    // Add the logic for viewing class members here
+    router.push(`class/people/${section.id}`);
   };
 
   const openMenu = () => setVisible(true);
@@ -93,7 +92,7 @@ export default function GroupClass({ section }) {
                 />
               }
             >
-              <Menu.Item onPress={handleLeaveClass} title="Leave Class" />
+              {/* <Menu.Item onPress={handleLeaveClass} title="Leave Class" /> */}
               <Menu.Item onPress={handleViewMembers} title="View Members" />
             </Menu>
           </View>

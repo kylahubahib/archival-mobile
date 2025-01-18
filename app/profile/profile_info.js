@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { Button, Card, Paragraph, Avatar, ActivityIndicator } from 'react-native-paper';
 import { url } from '../../utils/utils';
-import { getToken } from '../services/TokenService';
+import { getToken } from "../services/TokenService";
+import axios from "../../utils/axios";
 
 export default function ProfileInformation({user}) {
 
@@ -15,7 +16,7 @@ export default function ProfileInformation({user}) {
     user_aboutme: user.user_aboutme || '',
     user_dob: user.user_dob || '',
   });
-
+ 
   const [processing, setProcessing] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -43,6 +44,21 @@ export default function ProfileInformation({user}) {
       formData.append(key, data[key]);
     });
 
+    try {
+      const token = await getToken();
+      const response = await axios.patch('/profile/update', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data.message);
+      setMessage(response.data.message);
+      setProcessing(false);
+    } catch (error) {
+      console.log(error);
+      console.error(error);
+    }
+    
     console.log('Updated Info: ', formData);
   };
 

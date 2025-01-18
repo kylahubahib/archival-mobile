@@ -10,7 +10,7 @@ import Track from '../../track';
 import Approved from '../../approved';
 
 export default function TaskDetails() {
-  const { taskId, sectionId } = useLocalSearchParams (); 
+  const { taskId, sectionId } = useLocalSearchParams(); 
   const [hasGroup, setHasGroup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [displayPage, setDisplayPage] = useState('Menu');

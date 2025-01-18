@@ -1,18 +1,24 @@
 import { Link } from "expo-router";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
-import { Avatar, IconButton, List, Provider as PaperProvider } from "react-native-paper";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View, Image, TouchableOpacity, Alert} from "react-native";
+import { ActivityIndicator, Avatar, IconButton, List, Provider as PaperProvider } from "react-native-paper";
 import React, { useEffect, useState } from "react";
 import { url } from "../../utils/utils";
 import { loadUser } from "../services/AuthService";
 import SubscriptionInformation from "./subscription_info";
 import ProfileInformation from "./profile_info";
+import * as ImagePicker from "expo-image-picker";
+import ChangePassword from "./change_password";
+import { getToken } from "../services/TokenService";
+import axios from "../../utils/axios";
 
 export default function ProfileScreen() { 
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [newProfile, setNewProfile] = useState(null);
 
   useEffect(() => {
     getUser();
-  },[user])
+  },[]) 
 
   const getUser = async () => {
     const response = await loadUser(); 
@@ -20,34 +26,68 @@ export default function ProfileScreen() {
   };
 
   const handleImagePick = async () => {
-    // Request permissions
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permissionResult.granted) {
-      alert("Permission to access the media library is required!");
-      return;
-    }
+    console.log('image upload...');
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        alert("Permission to access media library is required!");
+        return;
+      }
 
-    // Open the image picker
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1], // Square cropping
-      quality: 1, // High-quality image
-    });
+      // Open image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+        base64: true,
+      });
 
-    if (!result.canceled) {
-      const selectedImage = result.assets[0];
-      await updateProfilePic(selectedImage);
+      const completeBase64String = "data:image/png;base64," + result?.assets[0]?.base64;
+      
+      if (!result.canceled) {
+        console.log('Opening updateProfilePic...');
+        updateProfilePic(completeBase64String, result?.assets[0]?.uri);
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
     }
   };
 
-  const updateProfilePic = async (newImage) => {
-    console.log(newImage);
-  };
+  const updateProfilePic = async (base64Image, uri) => {
+    try {
+      setLoading(true);
+      console.log('Processing...');
+      const formData = new FormData();
+      formData.append("user_pic", base64Image);
 
+      console.log(formData);
+  
+      const token = await getToken();
+      const response = await axios.post("/profile/picture", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      Alert.alert("Success", response.data.message);
+      setNewProfile(uri);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      Alert.alert("Error", "Failed to upload the image. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  
+  
+  
   return (
     <PaperProvider>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#e9f1ff" }}>
+      {!loading ? (
         <View style={styles.profileContainer}>
           {/* <Avatar.Text size={100} label="XD" /> */}
           <View style={{ position: "relative", alignItems: "center" }}>
@@ -61,34 +101,37 @@ export default function ProfileScreen() {
                 borderColor: "#294996",
               }}
               source={{
-                uri: user?.user_pic
-                  ? `${url.BASE_URL}/${user.user_pic}`
-                  : "https://ui-avatars.com/api/?name=Anonymous&background=random",
+                uri: !newProfile
+                  ? `${url.BASE_URL}/${user?.user_pic}`
+                  : newProfile,
               }}
             />
-            <TouchableOpacity
+            <IconButton
+              icon="pencil"
+              size={28} 
+              iconColor="#294996" 
               style={{
                 position: "absolute",
                 bottom: 0,
                 right: 10,
                 backgroundColor: "white",
-                borderRadius: 999,
+                borderRadius: 50,
+                borderWidth: 3,
                 borderColor: "#294996",
-                borderWidth: 5,
-                // padding: ,
+                elevation: 4, 
               }}
               onPress={handleImagePick}
-            >
-              <IconButton
-                icon="pencil"
-                size={20}
-                iconColor="#294996"
-              />
-            </TouchableOpacity>
+            />
+
           </View>
           <Text style={styles.profileText}>{user?.name}</Text>
           <Text style={styles.profileSubText}>Joined Since {new Date(user?.created_at).getFullYear()}</Text>
-        </View>
+        </View> ) : (
+          <View style={styles.profileContainer}>
+              <ActivityIndicator color="white" size={30} />
+          </View>
+        )
+      }
 
         <ScrollView contentContainerStyle={styles.menuContainer}>
           <List.AccordionGroup>
@@ -123,9 +166,10 @@ export default function ProfileScreen() {
               style={styles.menuItem}
             >
               <View style={styles.accordionContent}>
-                <Link href="/change-password" asChild>
+                {/* <Link href="/change-password" asChild>
                   <Text style={styles.linkText}>Go to Change Password</Text>
-                </Link>
+                </Link> */}
+                <ChangePassword user={user} />
               </View>
             </List.Accordion>
 

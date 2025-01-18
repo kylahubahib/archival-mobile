@@ -41,7 +41,7 @@ export default function UploadCapstone({ taskId, sectionId }) {
         const file = result.assets[0]; 
         setSelectedFile(file);
         console.log('Selected File:', file);
-        Alert.alert("File Selected", `Name: ${file.name}\nSize: ${file.size || "Unknown"} bytes`);
+        // Alert.alert("File Selected", `Name: ${file.name}\nSize: ${file.size || "Unknown"} bytes`);
       } else if (result?.canceled) {
         console.log('User canceled document selection');
       } else {
@@ -379,7 +379,7 @@ export default function UploadCapstone({ taskId, sectionId }) {
         />
         <Text style={styles.checkboxLabel}>I agree to the terms and conditions</Text>
       </View>
-      <Button mode="contained" onPress={handleSubmit} style={styles.submitButton} disabled={!isChecked}>
+      <Button mode="contained" onPress={handleSubmit} style={styles.submitButton} disabled={loading}>
         Submit
       </Button>
     </ScrollView>
@@ -391,6 +391,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f8f9fa",
     padding: 20,
+    paddingBottom: 100
   },
   input: {
     backgroundColor: "#ffffff",
